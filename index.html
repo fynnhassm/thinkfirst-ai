@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="groq-api-key" content="" />
+  <title>ThinkFirst AI · Geführtes Lernen</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon" aria-hidden="true">◈</span>
+      <span class="logo-text">ThinkFirst <strong>AI</strong></span>
+    </div>
+    <span class="header-tagline">Geführtes Lernen · AI 4 Education</span>
+    <button class="btn btn-sm btn-outline" id="btnOpenDashboard" type="button">
+      📊 Mein Verlauf
+    </button>
+  </div>
+</header>
+
+<main id="app" class="app-container">
+
+  <nav class="progress-nav" aria-label="Lernschritte">
+    <ol class="progress-steps" id="progressSteps">
+      <li class="step active" data-step="0"><span class="step-dot"></span><span class="step-label">Eingabe</span></li>
+      <li class="step" data-step="1"><span class="step-dot"></span><span class="step-label">Rückfrage</span></li>
+      <li class="step" data-step="2"><span class="step-dot"></span><span class="step-label">Hilfe</span></li>
+      <li class="step" data-step="3"><span class="step-dot"></span><span class="step-label">Selbsttest</span></li>
+      <li class="step" data-step="4"><span class="step-dot"></span><span class="step-label">Feedback</span></li>
+    </ol>
+  </nav>
+
+  <section class="card" id="step-0">
+    <div class="card-header">
+      <span class="step-badge">01 / 05</span>
+      <h1 class="card-title">Was möchtest du verstehen?</h1>
+      <p class="card-subtitle">Beschreibe deine konkrete Lernfrage. Je genauer dein Ansatz, desto gezielter kann ThinkFirst AI nachfragen.</p>
+    </div>
+    <div class="card-body">
+      <div class="form-group">
+        <label class="form-label" for="taskInput">Aufgabe oder Lernfrage <span class="required">*</span></label>
+        <textarea id="taskInput" class="form-control textarea" rows="3"
+          placeholder="z. B. Ich verstehe den Unterschied zwischen Mittelwert und Median nicht, oder: Wie funktioniert eine Schaltung mit Kondensator?"
+          aria-required="true"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="approachInput">Bisheriger Ansatz <span class="optional">(optional)</span></label>
+        <textarea id="approachInput" class="form-control textarea" rows="2"
+          placeholder="Was hast du schon versucht oder was glaubst du zu wissen?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kursmaterial hochladen <span class="optional">(optional)</span></label>
+        <div class="file-drop" id="fileDrop" tabindex="0" role="button" aria-label="Datei auswählen oder ablegen">
+          <span class="file-drop-icon">↑</span>
+          <span class="file-drop-text">Datei hier ablegen oder klicken</span>
+          <span class="file-drop-hint">PDF, DOCX oder PPTX · max. 20 MB</span>
+          <input type="file" id="fileInput" accept=".pdf,.docx,.pptx" class="file-input" tabindex="-1" />
+        </div>
+        <p class="file-notice" id="fileNotice" hidden></p>
+        <p class="prototype-hint">ⓘ Upload wird nicht verarbeitet – KI-Antworten sind echt (Groq API).</p>
+      </div>
+
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-primary" id="btnStep0Next" type="button" disabled>Weiter →</button>
+    </div>
+  </section>
+
+  <section class="card hidden" id="step-1">
+    <div class="card-header">
+      <span class="step-badge">02 / 05</span>
+      <p class="topic-badge" id="topicBadge1"></p>
+      <h1 class="card-title">Vorwissen klären</h1>
+      <p class="card-subtitle">Bevor ThinkFirst AI erklärt, klärt es dein Vorwissen – so bekommst du genau die richtige Hilfe.</p>
+    </div>
+    <div class="card-body">
+      <div class="ai-bubble" role="status" aria-live="polite">
+        <span class="ai-label">ThinkFirst AI</span>
+        <p id="retroQuestion" class="ai-text"></p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="retroAnswer">Deine Antwort</label>
+        <textarea id="retroAnswer" class="form-control textarea" rows="2"
+          placeholder="Schreib kurz auf, was du erkennst oder vermutest …"></textarea>
+      </div>
+      <div class="quick-answers" id="quickAnswers">
+        <span class="quick-answers-label">Häufige Antworten:</span>
+      </div>
+      <div class="why-box">
+        <button class="why-toggle" aria-expanded="false" aria-controls="why1-body">Warum dieser Schritt?</button>
+        <div class="why-body hidden" id="why1-body">Studierende, die einen Lösungsweg kennen, ihn aber später nicht selbst anwenden können, haben oft nur wiedererkannt, was erklärt wurde – ohne es wirklich verstanden zu haben (P10, P5). Durch eine gezielte Rückfrage wird sichtbar, ob bereits ein Ansatz vorhanden ist.</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-secondary" id="btnStep1Back" type="button">← Zurück</button>
+      <button class="btn btn-primary" id="btnStep1Next" type="button">Weiter →</button>
+    </div>
+  </section>
+
+  <section class="card hidden" id="step-2">
+    <div class="card-header">
+      <span class="step-badge">03 / 05</span>
+      <p class="topic-badge" id="topicBadge2"></p>
+      <h1 class="card-title">Wie viel Hilfe möchtest du?</h1>
+      <p class="card-subtitle">Wähle bewusst, welche Unterstützung du brauchst. Eine vollständige Lösung wird nicht ungefragt gezeigt.</p>
+    </div>
+    <div class="card-body">
+      <div class="help-levels" role="group" aria-label="Hilfegrade">
+        <button class="help-card" id="helpThink" type="button" data-level="think">
+          <span class="help-icon">💡</span>
+          <span class="help-title">Denkfrage</span>
+          <span class="help-desc">Eine Frage, die dich zum Weiterdenken anregt – ohne Antwort zu geben.</span>
+          <span class="help-badge help-badge--think">Empfohlen als Start</span>
+        </button>
+        <button class="help-card" id="helpHint" type="button" data-level="hint">
+          <span class="help-icon">🔍</span>
+          <span class="help-title">Hinweis</span>
+          <span class="help-desc">Ein konkreter nächster Schritt, ohne die Lösung vorwegzunehmen.</span>
+        </button>
+        <button class="help-card help-card--locked" id="helpExplain" type="button" data-level="explain" disabled>
+          <span class="help-icon">📖</span>
+          <span class="help-title">Erklärung <span class="lock-icon" id="lockIcon">🔒</span></span>
+          <span class="help-desc">Das Konzept wird verständlich erklärt, inklusive Fachbegriffe und Beispiel.</span>
+          <span class="help-badge help-badge--locked" id="lockBadge">Erst Hinweis anschauen</span>
+        </button>
+      </div>
+      <div class="ai-response-box hidden" id="helpResponse" role="region" aria-live="polite">
+        <span class="ai-label">ThinkFirst AI</span>
+        <div id="helpResponseText" class="ai-text"></div>
+        <button class="upgrade-link hidden" id="btnUpgradeHelp" type="button">Mehr Hilfe anfordern →</button>
+      </div>
+      <div class="why-box">
+        <button class="why-toggle" aria-expanded="false" aria-controls="why2-body">Warum keine automatische Lösung?</button>
+        <div class="why-body hidden" id="why2-body">Studierende, denen zu schnell eine vollständige Lösung gezeigt wird, überspringen den eigenen Denkprozess. P7 und P11 wünschten sich ausdrücklich passende Hinweise statt einer vorweggenommenen Komplettlösung.</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-secondary" id="btnStep2Back" type="button">← Zurück</button>
+      <button class="btn btn-primary hidden" id="btnStep2Next" type="button">Zum Selbsttest →</button>
+    </div>
+  </section>
+
+  <section class="card hidden" id="step-3">
+    <div class="card-header">
+      <span class="step-badge">04 / 05</span>
+      <p class="topic-badge" id="topicBadge3"></p>
+      <h1 class="card-title">Kannst du es selbst anwenden?</h1>
+      <p class="card-subtitle">Löse diese ähnliche Aufgabe ohne weitere Hilfe – das Feedback erscheint erst danach.</p>
+    </div>
+    <div class="card-body">
+      <div class="transfer-task">
+        <span class="transfer-label">Neue Aufgabe</span>
+        <p class="transfer-problem" id="transferProblem"></p>
+        <p class="transfer-instruction" id="transferInstruction"></p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="transferAnswer">Deine Lösung</label>
+        <textarea id="transferAnswer" class="form-control textarea mono" rows="2"
+          placeholder="Deine Lösung …"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+      </div>
+      <fieldset class="confidence-group">
+        <legend class="form-label">Wie sicher bist du?</legend>
+        <div class="confidence-options">
+          <label class="confidence-option"><input type="radio" name="confidence" value="unsure" /><span>Unsicher</span></label>
+          <label class="confidence-option"><input type="radio" name="confidence" value="partial" /><span>Teilweise sicher</span></label>
+          <label class="confidence-option"><input type="radio" name="confidence" value="sure" /><span>Sicher</span></label>
+        </div>
+      </fieldset>
+      <label class="checkbox-label">
+        <input type="checkbox" id="selfCheck" />
+        <span>Ich habe diese Aufgabe ohne Hilfe bearbeitet.</span>
+      </label>
+      <div class="why-box">
+        <button class="why-toggle" aria-expanded="false" aria-controls="why3-body">Warum zuerst selbst lösen?</button>
+        <div class="why-body hidden" id="why3-body">P5, P10 und P12 zeigen: Das eigenständige Bearbeiten einer veränderten Aufgabe macht sichtbar, ob das Gelernte wirklich angewendet werden kann – nicht nur, ob der Lösungsweg bekannt ist.</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-secondary" id="btnStep3Back" type="button">← Zurück</button>
+      <button class="btn btn-primary" id="btnStep3Next" type="button" disabled>Feedback anzeigen →</button>
+    </div>
+  </section>
+
+  <section class="card hidden" id="step-4">
+    <div class="card-header">
+      <span class="step-badge">05 / 05</span>
+      <p class="topic-badge" id="topicBadge4"></p>
+      <h1 class="card-title">Dein Feedback</h1>
+      <p class="card-subtitle">Konkrete Rückmeldung zu deiner Lösung – mit richtigen Schritten, Fehlerhinweisen und einem nächsten Schritt.</p>
+    </div>
+    <div class="card-body">
+      <div class="feedback-your-answer">
+        <span class="feedback-section-label">Deine Antwort</span>
+        <p class="feedback-answer-text mono" id="feedbackYourAnswer"></p>
+      </div>
+      <div class="feedback-grid" id="feedbackGrid" aria-live="polite"></div>
+      <div class="feedback-next-step" id="feedbackNextStep" hidden>
+        <span class="feedback-section-label">Nächster Schritt</span>
+        <p id="feedbackNextStepText"></p>
+      </div>
+      <div class="feedback-improve hidden" id="feedbackImprove">
+        <label class="form-label" for="improvedAnswer">Antwort verbessern</label>
+        <textarea id="improvedAnswer" class="form-control textarea mono" rows="2"
+          placeholder="Korrigierte Lösung eingeben …"></textarea>
+        <button class="btn btn-secondary" id="btnCheckImproved" type="button" style="margin-top:0.75rem">
+          Verbesserung prüfen →
+        </button>
+      </div>
+      <div class="why-box">
+        <button class="why-toggle" aria-expanded="false" aria-controls="why4-body">Warum kein pauschales Lob?</button>
+        <div class="why-body hidden" id="why4-body">P6, P8 und P12 erleben, dass generisches KI-Feedback das Verstehen nicht fördert – besonders wenn falsche Antworten bestätigt werden. Konkretes Feedback unterscheidet richtige Schritte, Fehler und Begründung.</div>
+      </div>
+    </div>
+    <div class="card-footer card-footer--spread">
+      <button class="btn btn-secondary" id="btnStep4Back" type="button">← Zurück</button>
+      <button class="btn btn-primary" id="btnRestart" type="button">Neue Lerneinheit starten ↺</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>ThinkFirst AI · Prototyp · AI 4 Education · UHH ITMC 2026 · <span class="footer-note">Powered by Groq · qwen3.8-27b</span></p>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════
+     DASHBOARD OVERLAY
+════════════════════════════════════════════════════════ -->
+<div class="dashboard-overlay hidden" id="dashboardOverlay" role="dialog" aria-modal="true" aria-label="Mein Lernverlauf" aria-hidden="true">
+  <div class="dashboard-panel">
+    <div class="dashboard-header">
+      <h2 class="dashboard-title">📊 Mein Lernverlauf</h2>
+      <button class="btn-icon" id="btnCloseDashboard" aria-label="Schließen">✕</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-value" id="statTotal">0</span>
+        <span class="stat-label">Lerneinheiten</span>
+      </div>
+      <div class="stat-card stat-card--score">
+        <span class="stat-value" id="statScore">–</span>
+        <span class="stat-label">Erfolgsquote</span>
+      </div>
+      <div class="stat-card stat-card--due">
+        <span class="stat-value" id="statDue">0</span>
+        <span class="stat-label">Fällig heute</span>
+      </div>
+      <div class="stat-card stat-card--streak">
+        <span class="stat-value" id="statStreak">0 Tage</span>
+        <span class="stat-label">Streak</span>
+      </div>
+    </div>
+
+    <!-- Due-Banner -->
+    <div class="due-banner hidden" id="dueBanner"></div>
+
+    <!-- Heatmap -->
+    <div class="heatmap-section">
+      <p class="heatmap-label">Aktivität · letzte 12 Wochen</p>
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+
+    <!-- Filter-Tabs -->
+    <div class="history-filters">
+      <button class="filter-btn active" id="historyFilterAll">Alle</button>
+      <button class="filter-btn" id="historyFilterDue">🔔 Fällig</button>
+      <button class="filter-btn" id="historyFilterCorrect">✓ Korrekt</button>
+      <button class="filter-btn" id="historyFilterWrong">✗ Falsch/Teilw.</button>
+    </div>
+
+    <!-- History-Liste -->
+    <div class="history-list" id="historyList"></div>
+
+    <!-- Practice-Panel (innerhalb Dashboard) -->
+    <div class="practice-panel hidden" id="practicePanel">
+      <div class="practice-header">
+        <div>
+          <h3 class="practice-title" id="practiceTitle">Übung</h3>
+          <span class="practice-progress" id="practiceProgress"></span>
+        </div>
+        <button class="btn-icon" id="btnClosePractice" aria-label="Übung schließen">✕</button>
+      </div>
+      <div class="practice-body" id="practiceBody"></div>
+      <div class="practice-answer-wrap hidden" id="practiceAnswerWrap">
+        <div class="practice-hint-row">
+          <button class="btn btn-sm btn-secondary" id="btnPracticeHint" type="button">💡 Hinweis</button>
+          <span class="practice-hint-text hidden" id="practiceHintText"></span>
+        </div>
+        <textarea id="practiceAnswer" class="form-control textarea mono" rows="2"
+          placeholder="Deine Antwort …" autocomplete="off" spellcheck="false"></textarea>
+        <button class="btn btn-primary" id="btnPracticeSubmit" type="button">Antwort prüfen →</button>
+      </div>
+      <div class="practice-feedback" id="practiceFeedback"></div>
+      <button class="btn btn-secondary hidden" id="btnPracticeNext" type="button">Nächste Aufgabe →</button>
+      <div class="practice-score-wrap hidden" id="practiceScoreWrap"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="storage.js"></script>
+<script src="app.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Lokale Env-Datei mit API-Key (niemals committen)
+.env
+.env.local
+.env*.local
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
